@@ -1,7 +1,6 @@
-#ifndef BDECODER_HPP
-#define BDECODER_HPP
+#ifndef TR_BDECODER_HPP
+#define TR_BDECODER_HPP
 
-#include <algorithm>
 #include <map>
 #include <string>
 #include <vector>
@@ -17,6 +16,8 @@ enum BencodeType
 
 #define MAJOR_VERSION "1"
 #define MINOR_VERSION "0"
+
+#define BUILD_VERSION "20160302"
 
 struct BencodeNode
 {
@@ -44,11 +45,127 @@ public:
         return this->type;
     }
 
+    std::string toString()
+    {
+        std::string s;
+
+        /*
+         * This part converts objects of type BencodeNode to std::strings
+         */
+
+        switch(this->getType())
+        {
+        case BencodeType::BDICT:
+            s.append("{ ");
+            for(auto item : this->getDict())
+            {
+                s.append
+                (
+                    item.first
+                    +
+                    " : "
+                    +
+                    item.second.toString()
+                    +
+                    (
+                        item.second.isEqual((*this->getDict().rbegin()).second) ? "" : ", "
+                    )
+                );
+            }
+            s.append(" }");
+            break;
+        case BencodeType::BINT:
+            s.append(std::to_string(this->getInt()));
+            break;
+        case BencodeType::BLIST:
+            s.append("[");
+            for(auto item : this->getList())
+            {
+                s.append
+                (
+                    item.toString()
+                    +
+                    (
+                        item.isEqual(this->getList().back()) ? "" : ", "
+                    )
+                );
+            }
+            s.append("]");
+            break;
+        case BencodeType::BSTRING:
+            s.append(this->getString());
+            break;
+        default:
+            throw std::string("BencodeType is UNKNOWN");
+        }
+
+        return s;
+    }
+
+    bool isEqual(const BencodeNode& other) const
+    {
+        if(this->getType() != other.getType())
+        {
+            return false;
+        }
+        switch(this->getType())
+        {
+        case BencodeType::BDICT:
+
+            if(this->getDict().size() != other.getDict().size())
+            {
+                return false;
+            }
+
+            for(auto a = this->getDict().begin(), b = other.getDict().begin(); a != this->getDict().end(); ++a, ++b)
+            {
+                if((*a).first != (*b).first)
+                {
+                    return false;
+                }
+                if(!(*a).second.isEqual((*b).second))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
+        case BencodeType::BINT:
+
+            return this->getInt() == other.getInt();
+
+        case BencodeType::BLIST:
+
+            if(this->getList().size() != other.getList().size())
+            {
+                return false;
+            }
+            for(unsigned i = 0; i < this->getList().size(); ++i)
+            {
+                if(!this->getList()[i].isEqual(other.getList()[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
+        case BencodeType::BSTRING:
+
+            return this->getString() == other.getString();
+
+        default:
+
+            throw std::string("BencodeType is UNKNOWN");
+        }
+    }
+
     void put(const std::string& key, const BencodeNode& value)
     {
         if(this->getType() != BDICT)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->dict[key] = value;
     }
@@ -57,7 +174,7 @@ public:
     {
         if(this->getType() != BLIST)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->list.push_back(node);
     }
@@ -66,16 +183,16 @@ public:
     {
         if(this->getType() != BDICT)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->dict = data;
     }
 
-    const std::map<std::string, BencodeNode>& getDict()
+    const std::map<std::string, BencodeNode>& getDict() const
     {
         if(this->getType() != BDICT)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         return this->dict;
     }
@@ -84,16 +201,16 @@ public:
     {
         if(this->getType() != BINT)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->integer = data;
     }
 
-    long long getInt()
+    long long getInt() const
     {
         if(this->getType() != BINT)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         return this->integer;
     }
@@ -102,16 +219,16 @@ public:
     {
         if(this->getType() != BLIST)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->list = data;
     }
 
-    const std::vector<BencodeNode>& getList()
+    const std::vector<BencodeNode>& getList() const
     {
         if(this->getType() != BLIST)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         return this->list;
     }
@@ -120,16 +237,16 @@ public:
     {
         if(this->getType() != BSTRING)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         this->string = data;
     }
 
-    const std::string& getString()
+    const std::string& getString() const
     {
         if(this->getType() != BSTRING)
         {
-            throw std::string("Invalid BencodeType");
+            throw std::string("BencodeType is UNKNOWN");
         }
         return this->string;
     }
@@ -140,9 +257,10 @@ class BDecoder
 private:
     std::string code; std::string::iterator head;
 public:
-    BDecoder(char* bencoded)
+    BDecoder(char* bencoded, int length)
     :
-    code(bencoded),
+    // TODO:: reimplement this part of code (e.g. pass std::string& or a pointer)
+    code(bencoded, length),
     head(this->code.begin())
     {
     }
@@ -151,7 +269,7 @@ public:
         BencodeNode node;
 
         /*
-         * Detects the token's type and parse it
+         * Detects the token's type and parses it
          */
 
         switch(*this->head)
@@ -167,6 +285,7 @@ public:
                     s, this->decode()
                 );
             }
+            if(*(this->head) == 'e') head++;
             break;
         case 'i':
             node.setType(BencodeType::BINT);
@@ -182,6 +301,7 @@ public:
             {
                 node.put(this->decode());
             }
+            if(*(this->head) == 'e') head++;
             break;
         case '0':
         case '1':
@@ -197,8 +317,9 @@ public:
             node.setValue(this->parseString());
             break;
         default:
-            throw std::string("Invalid bencoded Format");
+            throw std::string("Invalid Token");
         }
+
         return node;
     }
 
@@ -227,4 +348,4 @@ public:
     }
 };
 
-#endif /* BDECODER_HPP */
+#endif /* TR_BDECODER_HPP */

@@ -1,6 +1,6 @@
 ## PROJECT ##
 
-* ID: **B**encode!**P**arser
+* ID: **B**encode!**P**ARSER
 * Contact: development@schepsen.eu
 
 ## USAGE ##
@@ -13,6 +13,10 @@ To use this parser just include bdecoder.hpp into your project
 
 ## CHANGELOG ##
 
-### Bencode!Parser 1.0, updated @ 2016-03-01 ###
+### Bencode!PARSER 1.0, updated @ 2016-03-02 ###
+
+* Added the function toString() prints formatted code after its decoding
+
+### Bencode!PARSER 1.0, updated @ 2016-03-01 ###
 
 * Initial release
