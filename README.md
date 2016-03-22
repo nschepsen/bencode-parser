@@ -7,11 +7,15 @@
 
 To use this parser just include bdecoder.hpp into your project
 
-## Specification ##
+## SPECIFICATION ##
 
 * Bencode http://www.bittorrent.org/beps/bep_0003.html
 
 ## CHANGELOG ##
+
+### Bencode!PARSER 1.1, updated @ 2016-03-22 ###
+
+* Added the function encode() BEncodes a BencodeNode according to the convention
 
 ### Bencode!PARSER 1.0, updated @ 2016-03-02 ###
 

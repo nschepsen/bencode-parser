@@ -1,6 +1,7 @@
 #ifndef TR_BDECODER_HPP
 #define TR_BDECODER_HPP
 
+#include <algorithm>
 #include <map>
 #include <string>
 #include <vector>
@@ -15,9 +16,9 @@ enum BencodeType
 };
 
 #define MAJOR_VERSION "1"
-#define MINOR_VERSION "0"
+#define MINOR_VERSION "1"
 
-#define BUILD_VERSION "20160302"
+#define BUILD_VERSION "20160322"
 
 struct BencodeNode
 {
@@ -27,7 +28,7 @@ private:
     /*
      * TODO:
      *
-     * use UNIONS
+     * use UNIONS or any Variant DataType
      */
 
     std::string string;
@@ -94,6 +95,54 @@ public:
             break;
         case BencodeType::BSTRING:
             s.append(this->getString());
+            break;
+        default:
+            throw std::string("BencodeType is UNKNOWN");
+        }
+
+        return s;
+    }
+
+    std::string encode()
+    {
+        std::string s;
+
+        /*
+         * This part of code BEncodes objects of type BencodeNode to std::strings
+         */
+
+        switch(this->getType())
+        {
+        case BencodeType::BDICT:
+            s.append("d");
+            for(auto item : this->getDict())
+            {
+                s.append
+                    (
+                        std::to_string(item.first.size())
+                        +
+                        ":"
+                        +
+                        item.first
+                        +
+                        item.second.encode()
+                    );
+            }
+            s.append("e");
+            break;
+        case BencodeType::BINT:
+            s.append("i" + std::to_string(this->getInt()) + "e");
+            break;
+        case BencodeType::BLIST:
+            s.append("l");
+            for(auto item : this->getList())
+            {
+                s.append(item.encode());
+            }
+            s.append("e");
+            break;
+        case BencodeType::BSTRING:
+            s.append(std::to_string(this->getString().length()) + ":" + this->getString());
             break;
         default:
             throw std::string("BencodeType is UNKNOWN");
@@ -255,15 +304,25 @@ public:
 class BDecoder
 {
 private:
+
     std::string code; std::string::iterator head;
+
 public:
+
     BDecoder(char* bencoded, int length)
     :
-    // TODO:: reimplement this part of code (e.g. pass std::string& or a pointer)
     code(bencoded, length),
     head(this->code.begin())
     {
     }
+
+    BDecoder(std::string& bencoded)
+    :
+    code(bencoded),
+    head(this->code.begin())
+    {
+    }
+
     BencodeNode decode()
     {
         BencodeNode node;
