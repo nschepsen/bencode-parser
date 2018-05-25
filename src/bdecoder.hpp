@@ -46,7 +46,16 @@ public:
         return this->type;
     }
 
-    std::string toString()
+    const BencodeNode& operator[](const std::string& key) const
+    {
+        if(this->getType() != BencodeType::BDICT)
+        {
+            throw std::string("BencodeNode belongs to a different Type");
+        }
+        return this->getDict().find(key)->second;
+    }
+
+    std::string toString() const
     {
         std::string s;
 

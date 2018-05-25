@@ -1,6 +1,6 @@
-#include "../src/bdecoder.hpp"
-
 #include <iostream>
+
+#include "../src/bdecoder.hpp"
 
 int main(int argc, char** argv)
 {
