@@ -5,7 +5,7 @@
 
 ## USAGE ##
 
-To use the **B**encode!**P**ARSER you need to include the **bdecoder.hpp** into your project,  e.g. #include "bdecoder.hpp"
+To use the **B**encode!**P**ARSER you need to include the **bdecoder.hpp** into your project
 
 ## SPECIFICATION ##
 
