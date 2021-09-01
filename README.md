@@ -5,7 +5,7 @@
 
 ## USAGE ##
 
-To use the **B**encode!**P**ARSER you need to add the header file in your project
+To use the **B**encode!**P**ARSER you need to include the **bdecoder.hpp** into your project,  e.g. #include "bdecoder.hpp"
 
 ## SPECIFICATION ##
 
@@ -13,19 +13,19 @@ To use the **B**encode!**P**ARSER you need to add the header file in your projec
 
 ## EXAMPLES ##
 
-std::string src("d3:bar4:spam3:fooi42ee");
-
+The string "**d3:bar4:spam3:fooi42ee**"
 ```
+std::string src("d3:bar4:spam3:fooi42ee");
 BencodeNode root
 (
     BDecoder(src).decode()
 );
 ```
-encodes to a BencodeNode-Structure
+will be encoded to a Json-like based bEncode structure
 ```
 { "bar" : "spam", "foo" : 42 }
-
 ```
+
 ## CHANGELOG ##
 
 ### Bencode!PARSER 1.1, updated @ 2016-03-22 ###
@@ -38,4 +38,4 @@ encodes to a BencodeNode-Structure
 
 ### Bencode!PARSER 1.0, updated @ 2016-03-01 ###
 
-* Initial release
+* Initial Release
