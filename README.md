@@ -30,11 +30,11 @@ will be encoded to a Json-like based bEncode structure
 
 ### Bencode!PARSER 1.1, updated @ 2016-03-22 ###
 
-* Added the function encode() BEncodes a BencodeNode
+* Add the function **encode**() bEncodes a BencodeNode
 
 ### Bencode!PARSER 1.0, updated @ 2016-03-02 ###
 
-* Added the function toString() prints formatted code after its decoding
+* Add the function toString() prints Json-like bEncoded nodes
 
 ### Bencode!PARSER 1.0, updated @ 2016-03-01 ###
 
